@@ -16,9 +16,14 @@ import requests
 from dateutil import parser as dt_parser
 
 # Import auth manager from RFI project
-TOKENS_PATH = os.getenv("TOKENS_PATH") or "/Users/bortanasijevic/Projects/DEC/Pull_RFI_related_to_drawings/tokens.json"
+# Use shared token location - same as RFI Dashboard and Deficiency List Dashboard
+SHARED_TOKENS_PATH = os.path.expanduser("~/Projects/DEC/Pull_RFI_related_to_drawings/tokens.json")
+TOKENS_PATH = os.getenv("TOKENS_PATH") or SHARED_TOKENS_PATH
 os.environ['TOKENS_PATH'] = TOKENS_PATH
-sys.path.append('/Users/bortanasijevic/Projects/DEC/RFI_Python_Data_Extraction')
+
+# Add RFI_Python_Data_Extraction to path to import auth_manager
+RFI_PYTHON_PATH = os.path.expanduser("~/Projects/DEC/RFI_Python_Data_Extraction")
+sys.path.append(RFI_PYTHON_PATH)
 from auth_manager_refresh_only import ensure_access_token
 
 # ----------------------- Config -----------------------
