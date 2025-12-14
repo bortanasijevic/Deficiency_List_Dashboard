@@ -242,11 +242,12 @@ Thank you,"""
     to_part = ";".join(assignee_emails) if assignee_emails else ""
     cc_part = ";".join(TEAM_CC_EMAILS)
     
+    # Use quote() instead of urlencode() to encode spaces as %20 instead of +
     params = urlencode({
         'cc': cc_part,
         'subject': subject,
         'body': body
-    })
+    }, quote_via=quote)
     
     return f"mailto:{to_part}?{params}" if to_part else f"mailto:?{params}"
 

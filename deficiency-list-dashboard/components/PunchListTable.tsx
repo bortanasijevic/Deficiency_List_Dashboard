@@ -12,12 +12,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { ExternalLink, Mail, ArrowUp, ArrowDown, Edit } from "lucide-react";
+import { ExternalLink, Mail, ArrowUp, ArrowDown, Edit, ChevronDown } from "lucide-react";
 import { TPunchListItemRow } from "@/lib/schemas";
 import { formatDate } from "@/lib/dateFormatter";
 import { fetchAllNotes, saveNote, cleanupNotes } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { NotesModal } from "@/components/NotesModal";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type SortField = "number" | "due_date" | "days_late" | "days_in_court";
 type SortDirection = "asc" | "desc";
@@ -33,6 +39,8 @@ export function PunchListTable({ rows }: PunchListTableProps) {
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [modalOpen, setModalOpen] = useState(false);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [selectedCompany, setSelectedCompany] = useState<string | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
 
   // Load all notes on mount
   useEffect(() => {
@@ -94,13 +102,49 @@ export function PunchListTable({ rows }: PunchListTableProps) {
     }
   }, [sortField]);
 
+  // Get unique company names
+  const uniqueCompanyNames = useMemo(() => {
+    const companies = new Set<string>();
+    rows.forEach((row) => {
+      if (row.company_name && row.company_name.trim()) {
+        companies.add(row.company_name.trim());
+      }
+    });
+    return Array.from(companies).sort();
+  }, [rows]);
+
+  // Get unique status values
+  const uniqueStatuses = useMemo(() => {
+    const statuses = new Set<string>();
+    rows.forEach((row) => {
+      if (row.status && row.status.trim()) {
+        statuses.add(row.status.trim());
+      }
+    });
+    return Array.from(statuses).sort();
+  }, [rows]);
+
   const filteredAndSortedRows = useMemo(() => {
     let filtered = rows;
+
+    // Filter by company name
+    if (selectedCompany) {
+      filtered = filtered.filter(
+        (row) => row.company_name && row.company_name.trim() === selectedCompany
+      );
+    }
+
+    // Filter by status
+    if (selectedStatus) {
+      filtered = filtered.filter(
+        (row) => row.status && row.status.trim() === selectedStatus
+      );
+    }
 
     // Filter by search term
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
-      filtered = rows.filter(
+      filtered = filtered.filter(
         (row) =>
           row.number.toLowerCase().includes(term) ||
           row.subject.toLowerCase().includes(term) ||
@@ -140,7 +184,7 @@ export function PunchListTable({ rows }: PunchListTableProps) {
     });
 
     return sorted;
-  }, [rows, searchTerm, sortField, sortDirection]);
+  }, [rows, searchTerm, sortField, sortDirection, selectedCompany, selectedStatus]);
 
   const getDaysLateColor = (days: number) => {
     if (days === 0) return "bg-gray-100 text-gray-700";
@@ -207,9 +251,89 @@ export function PunchListTable({ rows }: PunchListTableProps) {
               <TableRow>
                 <SortableHeader field="number" className="min-w-[80px] w-[100px]">Number</SortableHeader>
                 <TableHead className="min-w-[300px] max-w-[500px] w-[400px] text-center">Subject</TableHead>
-                <TableHead className="min-w-[150px] w-[180px] text-center">Status</TableHead>
+                <TableHead className="min-w-[150px] w-[180px] text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-auto p-0 font-semibold hover:bg-muted/50"
+                      >
+                        <div className="flex items-center gap-1 flex-wrap justify-center">
+                          <span>Status</span>
+                          {selectedStatus && (
+                            <Badge variant="secondary" className="text-xs max-w-[100px] truncate">
+                              {selectedStatus}
+                            </Badge>
+                          )}
+                          <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto">
+                      <DropdownMenuItem
+                        onClick={() => setSelectedStatus(null)}
+                        className={selectedStatus === null ? "bg-accent" : ""}
+                      >
+                        All Statuses
+                      </DropdownMenuItem>
+                      {uniqueStatuses.length > 0 && (
+                        <>
+                          {uniqueStatuses.map((status) => (
+                            <DropdownMenuItem
+                              key={status}
+                              onClick={() => setSelectedStatus(status)}
+                              className={selectedStatus === status ? "bg-accent" : ""}
+                            >
+                              {status}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableHead>
                 <TableHead className="min-w-[200px] w-[250px] text-center">Assigned To</TableHead>
-                <TableHead className="min-w-[180px] w-[220px] text-center">Company Name</TableHead>
+                <TableHead className="min-w-[180px] w-[220px] text-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="h-auto p-0 font-semibold hover:bg-muted/50"
+                      >
+                        <div className="flex items-center gap-1 flex-wrap justify-center">
+                          <span>Company Name</span>
+                          {selectedCompany && (
+                            <Badge variant="secondary" className="text-xs max-w-[120px] truncate">
+                              {selectedCompany}
+                            </Badge>
+                          )}
+                          <ChevronDown className="h-4 w-4 flex-shrink-0" />
+                        </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="max-h-[300px] overflow-y-auto">
+                      <DropdownMenuItem
+                        onClick={() => setSelectedCompany(null)}
+                        className={selectedCompany === null ? "bg-accent" : ""}
+                      >
+                        All Companies
+                      </DropdownMenuItem>
+                      {uniqueCompanyNames.length > 0 && (
+                        <>
+                          {uniqueCompanyNames.map((company) => (
+                            <DropdownMenuItem
+                              key={company}
+                              onClick={() => setSelectedCompany(company)}
+                              className={selectedCompany === company ? "bg-accent" : ""}
+                            >
+                              {company}
+                            </DropdownMenuItem>
+                          ))}
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableHead>
                 <SortableHeader field="due_date" className="min-w-[120px] w-[140px]">Due Date</SortableHeader>
                 <SortableHeader field="days_late" className="min-w-[100px] w-[120px]">Days Late</SortableHeader>
                 <SortableHeader field="days_in_court" className="min-w-[100px] w-[120px]">Days in Court</SortableHeader>
