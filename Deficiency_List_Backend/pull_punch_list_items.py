@@ -36,11 +36,11 @@ VAPID_BASE = "https://api.procore.com/vapid"
 
 # Team CC list for email reminders
 TEAM_CC_EMAILS = [
-    "aggeliki@domacoencocorp.com",
-    "keith@domacoencocorp.com",
-    "bbidder@domacoencocorp.com",
     "gsilvat@domacoencocorp.com",
     "mcrow@domacoencocorp.com",
+    "ddurocher@domacoencocorp.com",
+    "mkimbler@domacoencocorp.com",
+    "gpeters@domacoencocorp.com",
 ]
 
 OUTPUT_JSON = os.getenv("OUTPUT_JSON", "punch_list_items.json")
@@ -227,15 +227,21 @@ def build_mailto_link(item: Dict, project_id: str) -> str:
     days_in_court = calculate_days_in_court(assignments, item.get('created_at'))
     link = build_item_link(project_id, item.get('id', 0))
     
-    subject = f"Punch List Item {item_number}: {name} — Response requested"
-    body = f"""Hi,
+    # Extract company name for greeting (use first company if multiple)
+    company_names = extract_company_names(assignments)
+    company_name = company_names.split('; ')[0] if company_names else ""
+    greeting = f"Hi {company_name}" if company_name else "Hi"
+    
+    subject = f"Punch List Item {item_number}: {name} — Required documentation"
+    body = f"""{greeting},
 
-Reminder for this punch list item. It has been in your court for {days_in_court} day(s).
+Reminder for this punch list item. It has been in your court for {days_in_court} days.
 Due date: {due_date}
 
 Item link: {link}
 
-Please let us know if any additional details are needed.
+Please upload the required documentation to close this punch list item.
+If something is preventing you from completing the item, please let us know and provide an expected timeline.
 
 Thank you,"""
     

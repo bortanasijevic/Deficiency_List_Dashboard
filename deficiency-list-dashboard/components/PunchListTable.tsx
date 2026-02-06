@@ -249,9 +249,9 @@ export function PunchListTable({ rows }: PunchListTableProps) {
           <Table className="w-full min-w-full table-full-width responsive-table">
             <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
               <TableRow>
-                <SortableHeader field="number" className="min-w-[80px] w-[100px]">Number</SortableHeader>
-                <TableHead className="min-w-[300px] max-w-[500px] w-[400px] text-center">Subject</TableHead>
-                <TableHead className="min-w-[150px] w-[180px] text-center">
+                <SortableHeader field="number" className="max-w-[80px] w-[80px]">Number</SortableHeader>
+                <TableHead className="max-w-[350px] w-[350px] text-center">Subject</TableHead>
+                <TableHead className="max-w-[100px] w-[100px] text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -292,8 +292,8 @@ export function PunchListTable({ rows }: PunchListTableProps) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableHead>
-                <TableHead className="min-w-[200px] w-[250px] text-center">Assigned To</TableHead>
-                <TableHead className="min-w-[180px] w-[220px] text-center">
+                <TableHead className="max-w-[250px] w-[250px] text-center">Assigned To</TableHead>
+                <TableHead className="max-w-[200px] w-[200px] text-center">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button
@@ -344,8 +344,8 @@ export function PunchListTable({ rows }: PunchListTableProps) {
             <TableBody>
               {filteredAndSortedRows.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="font-medium min-w-[80px] w-[100px]">{row.number}</TableCell>
-                  <TableCell className="min-w-[300px] max-w-[500px] w-[400px]">
+                  <TableCell className="font-medium max-w-[80px] w-[80px]">{row.number}</TableCell>
+                  <TableCell className="max-w-[350px] w-[350px]">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="truncate">{row.subject}</div>
@@ -355,12 +355,12 @@ export function PunchListTable({ rows }: PunchListTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="min-w-[150px] w-[180px]">
+                  <TableCell className="max-w-[100px] w-[100px]">
                     <Badge className={`${getStatusColor(row.status)} px-3 py-1`}>
                       {row.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="min-w-[200px] w-[250px]">
+                  <TableCell className="max-w-[250px] w-[250px]">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="flex flex-col gap-1">
@@ -388,7 +388,7 @@ export function PunchListTable({ rows }: PunchListTableProps) {
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
-                  <TableCell className="min-w-[180px] w-[220px]">
+                  <TableCell className="max-w-[200px] w-[200px]">
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <div className="truncate text-sm">

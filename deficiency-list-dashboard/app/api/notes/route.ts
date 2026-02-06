@@ -17,8 +17,20 @@ async function ensureNotesFile() {
 // Read notes from file
 async function readNotes(): Promise<Record<string, string>> {
   await ensureNotesFile();
-  const data = await fs.readFile(NOTES_FILE, 'utf-8');
-  return JSON.parse(data);
+  try {
+    const data = await fs.readFile(NOTES_FILE, 'utf-8');
+    // Handle empty file or whitespace-only content
+    const trimmedData = data.trim();
+    if (!trimmedData) {
+      return {};
+    }
+    return JSON.parse(trimmedData);
+  } catch (error) {
+    // If parsing fails, return empty object and recreate the file
+    console.error('Error parsing notes file, resetting to empty:', error);
+    await fs.writeFile(NOTES_FILE, JSON.stringify({}));
+    return {};
+  }
 }
 
 // Write notes to file
